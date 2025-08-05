@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    The Never Miss Calculator™ by XtraSmart AI
+    
+    IMPLEMENTATION GUIDE:
+    
+    1. UPDATE CONFIGURATION (Search for "CONFIGURATION"):
+       - ctaUrl: Your main landing page URL
+       - reportUrl: Your email capture/report page URL
+       - calendlyUrl: Your Calendly booking link
+       - calculatorUrl: Final URL where this calculator will live
+       - googleAnalyticsId: Your GA tracking ID
+       - facebookPixelId: Your FB pixel ID
+    
+    2. BUTTON CONNECTIONS:
+       - Main CTA Button: Redirects to your landing page (currently set in getStarted())
+       - Download Report: Redirects to email capture page (set in downloadReport())
+       - Share Results: Opens social sharing modal with LinkedIn, Facebook, Twitter
+    
+    3. DEPLOYMENT OPTIONS:
+       - Upload as index.html to any web hosting
+       - Use GitHub Pages for free hosting
+       - Deploy to Netlify with drag-and-drop
+       - Host on your subdomain (recommended)
+    
+    4. LEAD CAPTURE OPTIONS:
+       - Option 1: Redirect to your existing landing pages
+       - Option 2: Use the built-in email modal (uncomment showEmailModal)
+       - Option 3: Integrate with Google Forms
+       - Option 4: Direct API integration with your CRM
+    
+    5. TRACKING SETUP:
+       - Uncomment Google Analytics code (end of file)
+       - Uncomment Facebook Pixel code (end of file)
+       - Add any other tracking pixels as needed
+    
+    For support: contact@xtrasmartai.com
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Never Miss Calculator - Find Your Revenue Leaks | XtraSmart AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #050521;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+        
+        .company-name {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(111, 109, 252, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(111, 109, 252, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(111, 109, 252, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #ffffff;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .warning {
+            background: #dc2626;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .calculator-section {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(111, 109, 252, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-icon {
+            font-size: 1.5em;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(111, 109, 252, 0.5);
+            background: rgba(15, 23, 42, 0.8);
+            color: #ffffff;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #6f6dfc;
+            box-shadow: 0 0 0 3px rgba(111, 109, 252, 0.3);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        
+        select option {
+            background: #1e293b;
+            color: #ffffff;
+        }
+        
+        .metric-display {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .metric-label {
+            color: #ffffff;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ef4444;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .results-section {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .total-loss {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #ffffff;
+        }
+        
+        .recovery-roadmap {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(111, 109, 252, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .roadmap-title {
+            font-size: 1.8em;
+            color: #10b981;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+        
+        .roadmap-item {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #10b981;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .roadmap-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .roadmap-number {
+            background: #10b981;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        }
+        
+        .benchmark-section {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(111, 109, 252, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .benchmark-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .benchmark-card {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .benchmark-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .benchmark-label {
+            color: #ffffff;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        
+        .benchmark-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .your-value {
+            color: #ef4444;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .top-performer {
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+        }
+        
+        .share-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-bottom: 40px;
+        }
+        
+        .share-button {
+            background: #6f6dfc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(111, 109, 252, 0.3);
+        }
+        
+        .share-button:hover {
+            background: #5a58d6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(111, 109, 252, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .total-loss {
+                font-size: 2.5em;
+            }
+            
+            .calculator-section {
+                padding: 20px;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+                display: block;
+            }
+            
+            .company-name {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <svg class="logo" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#7C3AED;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="logoGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#4F46E5;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- Main X structure with circuit patterns -->
+                <!-- Top left arm -->
+                <path d="M40 40 L160 160 L160 140 L60 40 Z" fill="url(#logoGradient1)" stroke="#6366F1" stroke-width="2"/>
+                <path d="M60 40 L160 140 L160 120 L80 40 Z" fill="url(#logoGradient1)" opacity="0.8"/>
+                <path d="M80 40 L160 120 L160 100 L100 40 Z" fill="url(#logoGradient1)" opacity="0.6"/>
+                
+                <!-- Top right arm -->
+                <path d="M360 40 L240 160 L240 140 L340 40 Z" fill="url(#logoGradient2)" stroke="#6366F1" stroke-width="2"/>
+                <path d="M340 40 L240 140 L240 120 L320 40 Z" fill="url(#logoGradient2)" opacity="0.8"/>
+                <path d="M320 40 L240 120 L240 100 L300 40 Z" fill="url(#logoGradient2)" opacity="0.6"/>
+                
+                <!-- Bottom left arm -->
+                <path d="M40 360 L160 240 L160 260 L60 360 Z" fill="url(#logoGradient2)" stroke="#6366F1" stroke-width="2"/>
+                <path d="M60 360 L160 260 L160 280 L80 360 Z" fill="url(#logoGradient2)" opacity="0.8"/>
+                <path d="M80 360 L160 280 L160 300 L100 360 Z" fill="url(#logoGradient2)" opacity="0.6"/>
+                
+                <!-- Bottom right arm -->
+                <path d="M360 360 L240 240 L240 260 L340 360 Z" fill="url(#logoGradient1)" stroke="#6366F1" stroke-width="2"/>
+                <path d="M340 360 L240 260 L240 280 L320 360 Z" fill="url(#logoGradient1)" opacity="0.8"/>
+                <path d="M320 360 L240 280 L240 300 L300 360 Z" fill="url(#logoGradient1)" opacity="0.6"/>
+                
+                <!-- Center connector -->
+                <circle cx="200" cy="200" r="30" fill="#7C3AED" stroke="#8B5CF6" stroke-width="3"/>
+                <circle cx="200" cy="200" r="20" fill="#4F46E5"/>
+                <circle cx="200" cy="200" r="10" fill="#E0E7FF"/>
+                
+                <!-- Circuit nodes -->
+                <circle cx="40" cy="40" r="12" fill="#E0E7FF" stroke="#6366F1" stroke-width="2"/>
+                <circle cx="360" cy="40" r="12" fill="#E0E7FF" stroke="#6366F1" stroke-width="2"/>
+                <circle cx="40" cy="360" r="12" fill="#E0E7FF" stroke="#6366F1" stroke-width="2"/>
+                <circle cx="360" cy="360" r="12" fill="#E0E7FF" stroke="#6366F1" stroke-width="2"/>
+                
+                <!-- Circuit lines for detail -->
+                <line x1="40" y1="40" x2="20" y2="20" stroke="#6366F1" stroke-width="2" opacity="0.6"/>
+                <line x1="360" y1="40" x2="380" y2="20" stroke="#6366F1" stroke-width="2" opacity="0.6"/>
+                <line x1="40" y1="360" x2="20" y2="380" stroke="#6366F1" stroke-width="2" opacity="0.6"/>
+                <line x1="360" y1="360" x2="380" y2="380" stroke="#6366F1" stroke-width="2" opacity="0.6"/>
+                
+                <!-- Small circuit nodes -->
+                <circle cx="20" cy="20" r="4" fill="#C7D2FE"/>
+                <circle cx="380" cy="20" r="4" fill="#C7D2FE"/>
+                <circle cx="20" cy="380" r="4" fill="#C7D2FE"/>
+                <circle cx="380" cy="380" r="4" fill="#C7D2FE"/>
+                
+                <!-- Additional circuit pattern details -->
+                <circle cx="120" cy="120" r="6" fill="#A5B4FC" opacity="0.8"/>
+                <circle cx="280" cy="120" r="6" fill="#A5B4FC" opacity="0.8"/>
+                <circle cx="120" cy="280" r="6" fill="#A5B4FC" opacity="0.8"/>
+                <circle cx="280" cy="280" r="6" fill="#A5B4FC" opacity="0.8"/>
+            </svg>
+            <div class="company-name">XtraSmart AI</div>
+        </div>
+        
+        <div class="header">
+            <h1>The Never Miss Calculator™</h1>
+            <p class="subtitle">Find Out How Much Money Your Current Systems Are Costing You In 2 Minutes</p>
+            <span class="warning">⚠️ Warning: It's More Than You Think</span>
+        </div>
+        
+        <form id="calculatorForm">
+            <!-- Section 1: Discovery Losses -->
+            <div class="calculator-section">
+                <h2 class="section-title">
+                    <span class="section-icon">🔍</span>
+                    Discovery & Visibility Losses
+                </h2>
+                <div class="input-group">
+                    <label>How many calls do you receive per month?</label>
+                    <input type="number" id="totalCalls" value="100" min="0" max="10000">
+                </div>
+                <div class="input-group">
+                    <label>What percentage of callers can't find you online during emergencies?</label>
+                    <select id="onlineVisibility">
+                        <option value="10">10% - We rank well</option>
+                        <option value="25" selected>25% - Average visibility</option>
+                        <option value="40">40% - Hard to find</option>
+                        <option value="60">60% - Nearly invisible</option>
+                    </select>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-label">Monthly Revenue Lost to Poor Visibility</div>
+                    <div class="metric-value" id="visibilityLoss">$0</div>
+                </div>
+            </div>
+            
+            <!-- Section 2: Lead Response Losses -->
+            <div class="calculator-section">
+                <h2 class="section-title">
+                    <span class="section-icon">⏱️</span>
+                    Lead Response Time Losses
+                </h2>
+                <div class="input-group">
+                    <label>Average time to respond to new leads?</label>
+                    <select id="responseTime">
+                        <option value="5">Under 5 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="300">5 hours</option>
+                        <option value="1440">24 hours</option>
+                        <option value="2820" selected>47 hours (industry average)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>What percentage of leads receive follow-up?</label>
+                    <input type="number" id="followUpRate" value="29" min="0" max="100">
+                </div>
+                <div class="metric-display">
+                    <div class="metric-label">Monthly Revenue Lost to Slow Response</div>
+                    <div class="metric-value" id="responseLoss">$0</div>
+                </div>
+            </div>
+            
+            <!-- Section 3: Missed Call Losses -->
+            <div class="calculator-section">
+                <h2 class="section-title">
+                    <span class="section-icon">📞</span>
+                    Missed Call & After-Hours Losses
+                </h2>
+                <div class="input-group">
+                    <label>What percentage of calls do you miss?</label>
+                    <input type="number" id="missedCallRate" value="27" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label>Do you have 24/7 call answering?</label>
+                    <select id="afterHours">
+                        <option value="yes">Yes - We answer 24/7</option>
+                        <option value="no" selected>No - Business hours only</option>
+                    </select>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-label">Monthly Revenue Lost to Missed Calls</div>
+                    <div class="metric-value" id="missedCallLoss">$0</div>
+                </div>
+            </div>
+            
+            <!-- Section 4: Customer Retention Losses -->
+            <div class="calculator-section">
+                <h2 class="section-title">
+                    <span class="section-icon">🔄</span>
+                    Customer Retention Losses
+                </h2>
+                <div class="input-group">
+                    <label>Current customer retention rate (%)</label>
+                    <input type="number" id="retentionRate" value="60" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label>Average customer lifetime value</label>
+                    <input type="number" id="customerValue" value="5000" min="0" max="100000">
+                </div>
+                <div class="input-group">
+                    <label>Do you have automated maintenance reminders?</label>
+                    <select id="maintenanceReminders">
+                        <option value="yes">Yes - Automated system</option>
+                        <option value="manual">Manual reminders</option>
+                        <option value="no" selected>No reminders</option>
+                    </select>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-label">Monthly Revenue Lost to Poor Retention</div>
+                    <div class="metric-value" id="retentionLoss">$0</div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Results Section -->
+        <div class="results-section" id="results">
+            <h2>Your Total Annual Revenue Loss</h2>
+            <div class="total-loss" id="totalAnnualLoss">$0</div>
+            <p>That's money going directly to your competitors every year</p>
+        </div>
+        
+        <!-- Recovery Roadmap -->
+        <div class="recovery-roadmap">
+            <h2 class="roadmap-title">Your Recovery Roadmap</h2>
+            <div id="roadmapItems"></div>
+        </div>
+        
+        <!-- Benchmark Section -->
+        <div class="benchmark-section">
+            <h2 class="section-title">
+                <span class="section-icon">📊</span>
+                You vs. Top Performers
+            </h2>
+            <div class="benchmark-grid" id="benchmarks"></div>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <button class="cta-button" onclick="getStarted()">
+                Fix This Now - Get The Never Miss System™
+            </button>
+        </div>
+        
+        <!-- Share Section -->
+        <div class="share-section">
+            <button class="share-button" onclick="downloadReport()">📥 Download Report</button>
+            <button class="share-button" onclick="shareResults()">📤 Share Results</button>
+        </div>
+    </div>
+    
+    <script>
+        // CONFIGURATION - Update these URLs for your implementation
+        const config = {
+            // Main CTA destination
+            ctaUrl: 'https://xtrasmartai.com/never-miss-system',
+            
+            // Email capture page for report download
+            reportUrl: 'https://xtrasmartai.com/revenue-report',
+            
+            // Calendly link (if using Calendly)
+            calendlyUrl: 'https://calendly.com/xtrasmartai/demo',
+            
+            // Your calculator URL (update after deployment)
+            calculatorUrl: 'https://calculator.xtrasmartai.com',
+            
+            // Tracking IDs (uncomment and add your IDs)
+            // googleAnalyticsId: 'UA-XXXXX-Y',
+            // facebookPixelId: 'YOUR_PIXEL_ID'
+        };
+        
+        // Constants
+        const AVG_CALL_VALUE = 180;
+        const EMERGENCY_CALL_VALUE = 900;
+        const AFTER_HOURS_PERCENTAGE = 0.35; // 35% of calls are after hours
+        
+        // Calculate losses in real-time
+        function calculateLosses() {
+            // Get input values
+            const totalCalls = parseInt(document.getElementById('totalCalls').value) || 0;
+            const onlineVisibility = parseInt(document.getElementById('onlineVisibility').value) / 100;
+            const responseTime = parseInt(document.getElementById('responseTime').value);
+            const followUpRate = parseInt(document.getElementById('followUpRate').value) / 100;
+            const missedCallRate = parseInt(document.getElementById('missedCallRate').value) / 100;
+            const afterHours = document.getElementById('afterHours').value;
+            const retentionRate = parseInt(document.getElementById('retentionRate').value) / 100;
+            const customerValue = parseInt(document.getElementById('customerValue').value) || 0;
+            const maintenanceReminders = document.getElementById('maintenanceReminders').value;
+            
+            // Calculate losses for each section
+            
+            // 1. Visibility losses
+            const missedDueToVisibility = totalCalls * onlineVisibility * 0.5; // 50% would have called if found
+            const visibilityLoss = missedDueToVisibility * AVG_CALL_VALUE;
+            
+            // 2. Response time losses
+            let conversionLoss = 0;
+            if (responseTime > 5) {
+                const conversionPenalty = Math.min((responseTime / 5) * 0.1, 0.9); // Up to 90% loss
+                conversionLoss = totalCalls * (1 - followUpRate) * AVG_CALL_VALUE * conversionPenalty;
+            }
+            
+            // 3. Missed call losses
+            const missedCalls = totalCalls * missedCallRate;
+            let missedCallLoss = missedCalls * AVG_CALL_VALUE;
+            
+            // Add after-hours losses
+            if (afterHours === 'no') {
+                const afterHoursCalls = totalCalls * AFTER_HOURS_PERCENTAGE;
+                missedCallLoss += afterHoursCalls * EMERGENCY_CALL_VALUE; // Premium pricing for emergency calls
+            }
+            
+            // 4. Retention losses
+            const optimalRetention = 0.85; // Top performers retain 85%
+            const retentionGap = Math.max(optimalRetention - retentionRate, 0);
+            const customersLost = (totalCalls / 12) * retentionGap; // Estimate customers from calls
+            let retentionLoss = customersLost * customerValue / 12; // Monthly impact
+            
+            // Add maintenance reminder impact
+            if (maintenanceReminders === 'no') {
+                retentionLoss *= 1.5; // 50% more loss without reminders
+            } else if (maintenanceReminders === 'manual') {
+                retentionLoss *= 1.2; // 20% more loss with manual only
+            }
+            
+            // Update displays
+            document.getElementById('visibilityLoss').textContent = '$' + Math.round(visibilityLoss).toLocaleString();
+            document.getElementById('responseLoss').textContent = '$' + Math.round(conversionLoss).toLocaleString();
+            document.getElementById('missedCallLoss').textContent = '$' + Math.round(missedCallLoss).toLocaleString();
+            document.getElementById('retentionLoss').textContent = '$' + Math.round(retentionLoss).toLocaleString();
+            
+            // Calculate total annual loss
+            const monthlyLoss = visibilityLoss + conversionLoss + missedCallLoss + retentionLoss;
+            const annualLoss = monthlyLoss * 12;
+            document.getElementById('totalAnnualLoss').textContent = '$' + Math.round(annualLoss).toLocaleString();
+            
+            // Generate recovery roadmap
+            generateRoadmap(visibilityLoss, conversionLoss, missedCallLoss, retentionLoss);
+            
+            // Update benchmarks
+            updateBenchmarks(missedCallRate, responseTime, retentionRate, followUpRate);
+        }
+        
+        function generateRoadmap(visibility, response, missed, retention) {
+            const roadmapItems = [];
+            const losses = [
+                { type: 'missed calls', loss: missed, solution: 'Implement 24/7 AI Voice System', impact: 'Capture 100% of calls, including high-value emergency calls' },
+                { type: 'slow response', loss: response, solution: 'Deploy Speed-to-Lead Automation', impact: 'Respond in under 60 seconds, not 47 hours' },
+                { type: 'poor retention', loss: retention, solution: 'Activate Proactive Relationship System', impact: 'Automated maintenance reminders and follow-ups' },
+                { type: 'low visibility', loss: visibility, solution: 'Optimize for Emergency Search SEO', impact: 'Be found first when customers need you most' }
+            ];
+            
+            // Sort by biggest loss first
+            losses.sort((a, b) => b.loss - a.loss);
+            
+            const roadmapHtml = losses.slice(0, 3).map((item, index) => `
+                <div class="roadmap-item">
+                    <div class="roadmap-number">${index + 1}</div>
+                    <div>
+                        <strong>${item.solution}</strong><br>
+                        <span style="color: #ffffff; opacity: 0.8;">${item.impact}</span><br>
+                        <span style="color: #10b981; font-weight: bold;">Potential Recovery: $${Math.round(item.loss * 12).toLocaleString()}/year</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('roadmapItems').innerHTML = roadmapHtml;
+        }
+        
+        function updateBenchmarks(missedRate, responseTime, retention, followUp) {
+            const benchmarks = [
+                { label: 'Missed Call Rate', yours: Math.round(missedRate * 100) + '%', top: '0%' },
+                { label: 'Response Time', yours: responseTime > 60 ? Math.round(responseTime / 60) + ' hours' : responseTime + ' min', top: '< 5 min' },
+                { label: 'Retention Rate', yours: Math.round(retention * 100) + '%', top: '85%' },
+                { label: 'Follow-up Rate', yours: Math.round(followUp * 100) + '%', top: '100%' }
+            ];
+            
+            const benchmarkHtml = benchmarks.map(b => `
+                <div class="benchmark-card">
+                    <div class="benchmark-label">${b.label}</div>
+                    <div class="benchmark-value your-value">You: ${b.yours}</div>
+                    <div class="benchmark-value top-performer">Top 3%: ${b.top}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('benchmarks').innerHTML = benchmarkHtml;
+        }
+        
+        function getStarted() {
+            const loss = document.getElementById('totalAnnualLoss').textContent;
+            
+            // Option 1: Direct to your landing page
+            window.location.href = config.ctaUrl;
+            
+            // Option 2: Open in new tab
+            // window.open(config.ctaUrl, '_blank');
+            
+            // Option 3: Pass data to landing page
+            // window.location.href = `${config.ctaUrl}?loss=${loss}`;
+            
+            // Option 4: Open Calendly popup (uncomment if using)
+            // if (typeof Calendly !== 'undefined') {
+            //     Calendly.initPopupWidget({url: config.calendlyUrl});
+            // }
+            
+            // Option 5: Show email capture modal
+            // showEmailModal(loss);
+        }
+        
+        function downloadReport() {
+            const loss = document.getElementById('totalAnnualLoss').textContent;
+            
+            // Option 1: Redirect to email capture page
+            window.location.href = config.reportUrl;
+            
+            // Option 2: Open email capture modal
+            // showEmailModal('download');
+            
+            // Option 3: Direct download (requires backend setup)
+            // generatePDFReport();
+            
+            // Option 4: Google Form for email capture
+            // window.open('https://forms.google.com/your-form-id', '_blank');
+        }
+        
+        function shareResults() {
+            const loss = document.getElementById('totalAnnualLoss').textContent;
+            const text = `I just discovered I'm losing ${loss} per year in my HVAC business! 😱`;
+            const url = window.location.href;
+            
+            // Option 1: Native share (mobile)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My HVAC Revenue Leak Report',
+                    text: text,
+                    url: url
+                });
+                return;
+            }
+            
+            // Option 2: Share menu modal
+            const shareOptions = `
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                     background: #1e293b; padding: 30px; border-radius: 10px; z-index: 1000;
+                     box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;">
+                    <h3 style="margin-bottom: 20px; color: #ffffff;">Share Your Results</h3>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button onclick="shareToLinkedIn()" style="background: #0077B5; color: white; 
+                                padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                            LinkedIn
+                        </button>
+                        <button onclick="shareToFacebook()" style="background: #1877F2; color: white; 
+                                padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                            Facebook
+                        </button>
+                        <button onclick="shareToTwitter()" style="background: #1DA1F2; color: white; 
+                                padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                            Twitter
+                        </button>
+                        <button onclick="closeShareModal()" style="background: #ef4444; color: white; 
+                                padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+                <div onclick="closeShareModal()" style="position: fixed; top: 0; left: 0; 
+                     width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999;"></div>
+            `;
+            
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'shareModal';
+            modalDiv.innerHTML = shareOptions;
+            document.body.appendChild(modalDiv);
+        }
+        
+        function shareToLinkedIn() {
+            const loss = document.getElementById('totalAnnualLoss').textContent;
+            const text = `I just discovered I'm losing ${loss} per year in my HVAC business! Find out your revenue leaks with The Never Miss Calculator™ by XtraSmart AI`;
+            const url = config.calculatorUrl || window.location.href;
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
+            closeShareModal();
+        }
+        
+        function shareToFacebook() {
+            const url = config.calculatorUrl || window.location.href;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+            closeShareModal();
+        }
+        
+        function shareToTwitter() {
+            const loss = document.getElementById('totalAnnualLoss').textContent;
+            const text = `I just discovered I'm losing ${loss} per year in my HVAC business! 😱`;
+            const url = config.calculatorUrl || window.location.href;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+            closeShareModal();
+        }
+        
+        function closeShareModal() {
+            const modal = document.getElementById('shareModal');
+            if (modal) modal.remove();
+        }
+        
+        // Email capture modal (optional implementation)
+        function showEmailModal(action) {
+            const loss = document.getElementById('totalAnnualLoss').textContent;
+            const modalHtml = `
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                     background: #1e293b; padding: 40px; border-radius: 10px; z-index: 1000;
+                     box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%;">
+                    <h2 style="margin-bottom: 20px; color: #ffffff; text-align: center;">
+                        Get Your Detailed Revenue Report
+                    </h2>
+                    <p style="color: #cbd5e1; margin-bottom: 20px; text-align: center;">
+                        See exactly how to recover ${loss} in annual revenue
+                    </p>
+                    <form id="emailForm" onsubmit="submitEmail(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                        <input type="email" id="userEmail" placeholder="Enter your email" required
+                               style="padding: 12px; border: 2px solid #334155; background: #0f172a; 
+                                      color: #ffffff; border-radius: 8px; font-size: 16px;">
+                        <input type="text" id="userName" placeholder="Your name" required
+                               style="padding: 12px; border: 2px solid #334155; background: #0f172a; 
+                                      color: #ffffff; border-radius: 8px; font-size: 16px;">
+                        <input type="text" id="companyName" placeholder="Company name"
+                               style="padding: 12px; border: 2px solid #334155; background: #0f172a; 
+                                      color: #ffffff; border-radius: 8px; font-size: 16px;">
+                        <button type="submit" style="background: #10b981; color: white; padding: 12px 24px; 
+                                border: none; border-radius: 8px; font-size: 18px; font-weight: bold; 
+                                cursor: pointer; transition: all 0.3s ease;">
+                            Send My Report
+                        </button>
+                    </form>
+                    <button onclick="closeEmailModal()" style="position: absolute; top: 10px; right: 10px; 
+                            background: none; border: none; color: #94a3b8; font-size: 24px; 
+                            cursor: pointer;">&times;</button>
+                </div>
+                <div onclick="closeEmailModal()" style="position: fixed; top: 0; left: 0; 
+                     width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999;"></div>
+            `;
+            
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'emailModal';
+            modalDiv.innerHTML = modalHtml;
+            document.body.appendChild(modalDiv);
+        }
+        
+        function closeEmailModal() {
+            const modal = document.getElementById('emailModal');
+            if (modal) modal.remove();
+        }
+        
+        function submitEmail(event) {
+            event.preventDefault();
+            const email = document.getElementById('userEmail').value;
+            const name = document.getElementById('userName').value;
+            const company = document.getElementById('companyName').value;
+            const loss = document.getElementById('totalAnnualLoss').textContent;
+            
+            // Option 1: Submit to your backend
+            // fetch('https://your-api.com/capture-lead', {
+            //     method: 'POST',
+            //     headers: {'Content-Type': 'application/json'},
+            //     body: JSON.stringify({email, name, company, loss})
+            // });
+            
+            // Option 2: Submit to Google Forms
+            // const formUrl = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse';
+            // const params = new URLSearchParams({
+            //     'entry.123456': email,
+            //     'entry.789012': name,
+            //     'entry.345678': company,
+            //     'entry.901234': loss
+            // });
+            // fetch(formUrl, {method: 'POST', body: params});
+            
+            // Option 3: Redirect to thank you page with data
+            window.location.href = `${config.reportUrl}?email=${email}&loss=${loss}`;
+            
+            closeEmailModal();
+        }
+        
+        // Add event listeners for real-time calculation
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('input', calculateLosses);
+            element.addEventListener('change', calculateLosses);
+        });
+        
+        // Calculate on load
+        calculateLosses();
+    </script>
+    
+    <!-- External Integration Scripts -->
+    <!-- Calendly (uncomment if using Calendly popup) -->
+    <!-- <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript"></script> -->
+    
+    <!-- Google Analytics (replace UA-XXXXX-Y with your tracking ID) -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXX-Y"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-XXXXX-Y');
+    </script> -->
+    
+    <!-- Facebook Pixel (replace YOUR_PIXEL_ID) -->
+    <!-- <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', 'YOUR_PIXEL_ID');
+        fbq('track', 'PageView');
+        
+        // Track calculator completion
+        function trackCalculatorComplete() {
+            const loss = document.getElementById('totalAnnualLoss').textContent;
+            fbq('track', 'Lead', {
+                value: loss.replace(/[^0-9]/g, ''),
+                currency: 'USD',
+                content_name: 'Revenue Leak Calculator'
+            });
+        }
+    </script> -->
+</body>
+</html>
