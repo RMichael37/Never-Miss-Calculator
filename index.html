@@ -1,42 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<!--
-    The Never Miss Calculator™ by XtraSmart AI
-    
-    IMPLEMENTATION GUIDE:
-    
-    1. UPDATE CONFIGURATION (Search for "CONFIGURATION"):
-       - ctaUrl: Your main landing page URL
-       - reportUrl: Your email capture/report page URL
-       - calendlyUrl: Your Calendly booking link
-       - calculatorUrl: Final URL where this calculator will live
-       - googleAnalyticsId: Your GA tracking ID
-       - facebookPixelId: Your FB pixel ID
-    
-    2. BUTTON CONNECTIONS:
-       - Main CTA Button: Redirects to your landing page (currently set in getStarted())
-       - Download Report: Redirects to email capture page (set in downloadReport())
-       - Share Results: Opens social sharing modal with LinkedIn, Facebook, Twitter
-    
-    3. DEPLOYMENT OPTIONS:
-       - Upload as index.html to any web hosting
-       - Use GitHub Pages for free hosting
-       - Deploy to Netlify with drag-and-drop
-       - Host on your subdomain (recommended)
-    
-    4. LEAD CAPTURE OPTIONS:
-       - Option 1: Redirect to your existing landing pages
-       - Option 2: Use the built-in email modal (uncomment showEmailModal)
-       - Option 3: Integrate with Google Forms
-       - Option 4: Direct API integration with your CRM
-    
-    5. TRACKING SETUP:
-       - Uncomment Google Analytics code (end of file)
-       - Uncomment Facebook Pixel code (end of file)
-       - Add any other tracking pixels as needed
-    
-    For support: contact@xtrasmartai.com
--->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -544,7 +507,7 @@
                 </div>
                 <div class="metric-display">
                     <div class="metric-label">Monthly Revenue Lost to Missed Calls</div>
-                    <div class="metric-value" id="missedCallLoss">$0</div>
+                    <div id="missedCallLossValue" class="metric-value">$0</div>
                 </div>
             </div>
             
@@ -609,30 +572,11 @@
         <!-- Share Section -->
         <div class="share-section">
             <button class="share-button" onclick="downloadReport()">📥 Download Report</button>
-            <button class="share-button" onclick="shareResults()">📤 Share Results</button>
+            <button class="share-button" onclick="shareResults()">📤 Share on LinkedIn</button>
         </div>
     </div>
     
     <script>
-        // CONFIGURATION - Update these URLs for your implementation
-        const config = {
-            // Main CTA destination
-            ctaUrl: 'https://xtrasmartai.com/never-miss-system',
-            
-            // Email capture page for report download
-            reportUrl: 'https://xtrasmartai.com/revenue-report',
-            
-            // Calendly link (if using Calendly)
-            calendlyUrl: 'https://calendly.com/xtrasmartai/demo',
-            
-            // Your calculator URL (update after deployment)
-            calculatorUrl: 'https://calculator.xtrasmartai.com',
-            
-            // Tracking IDs (uncomment and add your IDs)
-            // googleAnalyticsId: 'UA-XXXXX-Y',
-            // facebookPixelId: 'YOUR_PIXEL_ID'
-        };
-        
         // Constants
         const AVG_CALL_VALUE = 180;
         const EMERGENCY_CALL_VALUE = 900;
@@ -666,12 +610,42 @@
             
             // 3. Missed call losses
             const missedCalls = totalCalls * missedCallRate;
-            let missedCallLoss = missedCalls * AVG_CALL_VALUE;
+            let businessHoursMissedLoss = missedCalls * AVG_CALL_VALUE;
+            let afterHoursLoss = 0;
             
-            // Add after-hours losses
+            // Calculate after-hours losses
             if (afterHours === 'no') {
                 const afterHoursCalls = totalCalls * AFTER_HOURS_PERCENTAGE;
-                missedCallLoss += afterHoursCalls * EMERGENCY_CALL_VALUE; // Premium pricing for emergency calls
+                afterHoursLoss = afterHoursCalls * EMERGENCY_CALL_VALUE; // Premium pricing for emergency calls
+            }
+            
+            const totalMissedCallLoss = businessHoursMissedLoss + afterHoursLoss;
+            
+            // Update display with breakdown
+            const missedCallLossDiv = document.getElementById('missedCallLossValue');
+            
+            // Show breakdown if there are after-hours losses
+            if (afterHoursLoss > 0 && missedCallRate === 0) {
+                missedCallLossDiv.innerHTML = `
+                    <div style="margin-bottom: 10px; font-size: 0.9em; color: #94a3b8;">
+                        Business Hours Losses: $0<br>
+                        After-Hours Losses: $${Math.round(afterHoursLoss).toLocaleString()}
+                    </div>
+                    <div style="color: #ef4444;">Total: $${Math.round(totalMissedCallLoss).toLocaleString()}</div>
+                `;
+                missedCallLossDiv.style.fontSize = '1.2em';
+            } else if (afterHoursLoss > 0) {
+                missedCallLossDiv.innerHTML = `
+                    <div style="margin-bottom: 10px; font-size: 0.9em; color: #94a3b8;">
+                        Business Hours: $${Math.round(businessHoursMissedLoss).toLocaleString()}<br>
+                        After-Hours: $${Math.round(afterHoursLoss).toLocaleString()}
+                    </div>
+                    <div style="color: #ef4444;">Total: $${Math.round(totalMissedCallLoss).toLocaleString()}</div>
+                `;
+                missedCallLossDiv.style.fontSize = '1.2em';
+            } else {
+                missedCallLossDiv.innerHTML = `$${Math.round(totalMissedCallLoss).toLocaleString()}`;
+                missedCallLossDiv.style.fontSize = '1.8em';
             }
             
             // 4. Retention losses
@@ -690,16 +664,15 @@
             // Update displays
             document.getElementById('visibilityLoss').textContent = '$' + Math.round(visibilityLoss).toLocaleString();
             document.getElementById('responseLoss').textContent = '$' + Math.round(conversionLoss).toLocaleString();
-            document.getElementById('missedCallLoss').textContent = '$' + Math.round(missedCallLoss).toLocaleString();
             document.getElementById('retentionLoss').textContent = '$' + Math.round(retentionLoss).toLocaleString();
             
             // Calculate total annual loss
-            const monthlyLoss = visibilityLoss + conversionLoss + missedCallLoss + retentionLoss;
+            const monthlyLoss = visibilityLoss + conversionLoss + totalMissedCallLoss + retentionLoss;
             const annualLoss = monthlyLoss * 12;
             document.getElementById('totalAnnualLoss').textContent = '$' + Math.round(annualLoss).toLocaleString();
             
             // Generate recovery roadmap
-            generateRoadmap(visibilityLoss, conversionLoss, missedCallLoss, retentionLoss);
+            generateRoadmap(visibilityLoss, conversionLoss, totalMissedCallLoss, retentionLoss);
             
             // Update benchmarks
             updateBenchmarks(missedCallRate, responseTime, retentionRate, followUpRate);
@@ -751,195 +724,22 @@
         }
         
         function getStarted() {
-            const loss = document.getElementById('totalAnnualLoss').textContent;
-            
-            // Option 1: Direct to your landing page
-            window.location.href = config.ctaUrl;
-            
-            // Option 2: Open in new tab
-            // window.open(config.ctaUrl, '_blank');
-            
-            // Option 3: Pass data to landing page
-            // window.location.href = `${config.ctaUrl}?loss=${loss}`;
-            
-            // Option 4: Open Calendly popup (uncomment if using)
-            // if (typeof Calendly !== 'undefined') {
-            //     Calendly.initPopupWidget({url: config.calendlyUrl});
-            // }
-            
-            // Option 5: Show email capture modal
-            // showEmailModal(loss);
+            // Redirect to calendar booking page
+            window.location.href = 'https://api.leadconnectorhq.com/widget/booking/6jMdChYKHBgClqbKks2H';
         }
         
         function downloadReport() {
-            const loss = document.getElementById('totalAnnualLoss').textContent;
-            
-            // Option 1: Redirect to email capture page
-            window.location.href = config.reportUrl;
-            
-            // Option 2: Open email capture modal
-            // showEmailModal('download');
-            
-            // Option 3: Direct download (requires backend setup)
-            // generatePDFReport();
-            
-            // Option 4: Google Form for email capture
-            // window.open('https://forms.google.com/your-form-id', '_blank');
+            // Direct redirect to report page - NO POPUP
+            window.location.href = 'https://xtrasmartai.com/revenue-report';
         }
         
         function shareResults() {
             const loss = document.getElementById('totalAnnualLoss').textContent;
-            const text = `I just discovered I'm losing ${loss} per year in my HVAC business! 😱`;
-            const url = window.location.href;
-            
-            // Option 1: Native share (mobile)
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My HVAC Revenue Leak Report',
-                    text: text,
-                    url: url
-                });
-                return;
-            }
-            
-            // Option 2: Share menu modal
-            const shareOptions = `
-                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                     background: #1e293b; padding: 30px; border-radius: 10px; z-index: 1000;
-                     box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;">
-                    <h3 style="margin-bottom: 20px; color: #ffffff;">Share Your Results</h3>
-                    <div style="display: flex; gap: 15px; justify-content: center;">
-                        <button onclick="shareToLinkedIn()" style="background: #0077B5; color: white; 
-                                padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                            LinkedIn
-                        </button>
-                        <button onclick="shareToFacebook()" style="background: #1877F2; color: white; 
-                                padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                            Facebook
-                        </button>
-                        <button onclick="shareToTwitter()" style="background: #1DA1F2; color: white; 
-                                padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                            Twitter
-                        </button>
-                        <button onclick="closeShareModal()" style="background: #ef4444; color: white; 
-                                padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                            Close
-                        </button>
-                    </div>
-                </div>
-                <div onclick="closeShareModal()" style="position: fixed; top: 0; left: 0; 
-                     width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999;"></div>
-            `;
-            
-            const modalDiv = document.createElement('div');
-            modalDiv.id = 'shareModal';
-            modalDiv.innerHTML = shareOptions;
-            document.body.appendChild(modalDiv);
-        }
-        
-        function shareToLinkedIn() {
-            const loss = document.getElementById('totalAnnualLoss').textContent;
             const text = `I just discovered I'm losing ${loss} per year in my HVAC business! Find out your revenue leaks with The Never Miss Calculator™ by XtraSmart AI`;
-            const url = config.calculatorUrl || window.location.href;
+            const url = 'https://calculator.xtrasmartai.com'; // Update with your actual URL
+            
+            // Always open LinkedIn directly - no popups
             window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
-            closeShareModal();
-        }
-        
-        function shareToFacebook() {
-            const url = config.calculatorUrl || window.location.href;
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-            closeShareModal();
-        }
-        
-        function shareToTwitter() {
-            const loss = document.getElementById('totalAnnualLoss').textContent;
-            const text = `I just discovered I'm losing ${loss} per year in my HVAC business! 😱`;
-            const url = config.calculatorUrl || window.location.href;
-            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-            closeShareModal();
-        }
-        
-        function closeShareModal() {
-            const modal = document.getElementById('shareModal');
-            if (modal) modal.remove();
-        }
-        
-        // Email capture modal (optional implementation)
-        function showEmailModal(action) {
-            const loss = document.getElementById('totalAnnualLoss').textContent;
-            const modalHtml = `
-                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                     background: #1e293b; padding: 40px; border-radius: 10px; z-index: 1000;
-                     box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%;">
-                    <h2 style="margin-bottom: 20px; color: #ffffff; text-align: center;">
-                        Get Your Detailed Revenue Report
-                    </h2>
-                    <p style="color: #cbd5e1; margin-bottom: 20px; text-align: center;">
-                        See exactly how to recover ${loss} in annual revenue
-                    </p>
-                    <form id="emailForm" onsubmit="submitEmail(event)" style="display: flex; flex-direction: column; gap: 15px;">
-                        <input type="email" id="userEmail" placeholder="Enter your email" required
-                               style="padding: 12px; border: 2px solid #334155; background: #0f172a; 
-                                      color: #ffffff; border-radius: 8px; font-size: 16px;">
-                        <input type="text" id="userName" placeholder="Your name" required
-                               style="padding: 12px; border: 2px solid #334155; background: #0f172a; 
-                                      color: #ffffff; border-radius: 8px; font-size: 16px;">
-                        <input type="text" id="companyName" placeholder="Company name"
-                               style="padding: 12px; border: 2px solid #334155; background: #0f172a; 
-                                      color: #ffffff; border-radius: 8px; font-size: 16px;">
-                        <button type="submit" style="background: #10b981; color: white; padding: 12px 24px; 
-                                border: none; border-radius: 8px; font-size: 18px; font-weight: bold; 
-                                cursor: pointer; transition: all 0.3s ease;">
-                            Send My Report
-                        </button>
-                    </form>
-                    <button onclick="closeEmailModal()" style="position: absolute; top: 10px; right: 10px; 
-                            background: none; border: none; color: #94a3b8; font-size: 24px; 
-                            cursor: pointer;">&times;</button>
-                </div>
-                <div onclick="closeEmailModal()" style="position: fixed; top: 0; left: 0; 
-                     width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999;"></div>
-            `;
-            
-            const modalDiv = document.createElement('div');
-            modalDiv.id = 'emailModal';
-            modalDiv.innerHTML = modalHtml;
-            document.body.appendChild(modalDiv);
-        }
-        
-        function closeEmailModal() {
-            const modal = document.getElementById('emailModal');
-            if (modal) modal.remove();
-        }
-        
-        function submitEmail(event) {
-            event.preventDefault();
-            const email = document.getElementById('userEmail').value;
-            const name = document.getElementById('userName').value;
-            const company = document.getElementById('companyName').value;
-            const loss = document.getElementById('totalAnnualLoss').textContent;
-            
-            // Option 1: Submit to your backend
-            // fetch('https://your-api.com/capture-lead', {
-            //     method: 'POST',
-            //     headers: {'Content-Type': 'application/json'},
-            //     body: JSON.stringify({email, name, company, loss})
-            // });
-            
-            // Option 2: Submit to Google Forms
-            // const formUrl = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse';
-            // const params = new URLSearchParams({
-            //     'entry.123456': email,
-            //     'entry.789012': name,
-            //     'entry.345678': company,
-            //     'entry.901234': loss
-            // });
-            // fetch(formUrl, {method: 'POST', body: params});
-            
-            // Option 3: Redirect to thank you page with data
-            window.location.href = `${config.reportUrl}?email=${email}&loss=${loss}`;
-            
-            closeEmailModal();
         }
         
         // Add event listeners for real-time calculation
@@ -951,43 +751,5 @@
         // Calculate on load
         calculateLosses();
     </script>
-    
-    <!-- External Integration Scripts -->
-    <!-- Calendly (uncomment if using Calendly popup) -->
-    <!-- <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
-    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript"></script> -->
-    
-    <!-- Google Analytics (replace UA-XXXXX-Y with your tracking ID) -->
-    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXX-Y"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-XXXXX-Y');
-    </script> -->
-    
-    <!-- Facebook Pixel (replace YOUR_PIXEL_ID) -->
-    <!-- <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', 'YOUR_PIXEL_ID');
-        fbq('track', 'PageView');
-        
-        // Track calculator completion
-        function trackCalculatorComplete() {
-            const loss = document.getElementById('totalAnnualLoss').textContent;
-            fbq('track', 'Lead', {
-                value: loss.replace(/[^0-9]/g, ''),
-                currency: 'USD',
-                content_name: 'Revenue Leak Calculator'
-            });
-        }
-    </script> -->
 </body>
 </html>
