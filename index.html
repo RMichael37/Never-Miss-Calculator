@@ -287,6 +287,7 @@
         .cta-section {
             text-align: center;
             margin-top: 40px;
+            padding-bottom: 40px;
         }
         
         .cta-button {
@@ -307,31 +308,6 @@
         .cta-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
-        }
-        
-        .share-section {
-            text-align: center;
-            margin-top: 30px;
-            padding-bottom: 40px;
-        }
-        
-        .share-button {
-            background: #6f6dfc;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            cursor: pointer;
-            margin: 0 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(111, 109, 252, 0.3);
-        }
-        
-        .share-button:hover {
-            background: #5a58d6;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(111, 109, 252, 0.4);
         }
         
         @media (max-width: 768px) {
@@ -568,12 +544,6 @@
                 Fix This Now - Get The Never Miss System™
             </button>
         </div>
-        
-        <!-- Share Section -->
-        <div class="share-section">
-            <button class="share-button" onclick="downloadReport()">📥 Download Report</button>
-            <button class="share-button" onclick="shareResults()">📤 Share on LinkedIn</button>
-        </div>
     </div>
     
     <script>
@@ -676,20 +646,6 @@
             
             // Update benchmarks
             updateBenchmarks(missedCallRate, responseTime, retentionRate, followUpRate);
-            
-            // Save data for report generation
-            if (window.calculatorData === undefined) {
-                window.calculatorData = {};
-            }
-            window.calculatorData = {
-                totalAnnualLoss: annualLoss,
-                totalMissedCallLoss: totalMissedCallLoss,
-                businessHoursLoss: businessHoursMissedLoss,
-                afterHoursLoss: afterHoursLoss,
-                visibilityLoss: visibilityLoss,
-                responseLoss: conversionLoss,
-                retentionLoss: retentionLoss
-            };
         }
         
         function generateRoadmap(visibility, response, missed, retention) {
@@ -740,94 +696,6 @@
         function getStarted() {
             // Redirect to calendar booking page
             window.location.href = 'https://api.leadconnectorhq.com/widget/booking/6jMdChYKHBgClqbKks2H';
-        }
-        
-        function downloadReport() {
-            // Collect all calculator values
-            const totalAnnualLoss = document.getElementById('totalAnnualLoss').textContent.replace(/[$,]/g, '');
-            const monthlyLoss = Math.round(totalAnnualLoss / 12);
-            const weeklyLoss = Math.round(totalAnnualLoss / 52);
-            const dailyLoss = Math.round(totalAnnualLoss / 365);
-            const hourlyLoss = Math.round(totalAnnualLoss / 8760);
-            
-            // Get form input values
-            const totalCalls = document.getElementById('totalCalls').value;
-            const missedCallRate = document.getElementById('missedCallRate').value;
-            const responseTime = document.getElementById('responseTime').value;
-            const followUpRate = document.getElementById('followUpRate').value;
-            const retentionRate = document.getElementById('retentionRate').value;
-            const customerValue = document.getElementById('customerValue').value;
-            const onlineVisibility = document.getElementById('onlineVisibility').value;
-            const afterHours = document.getElementById('afterHours').value;
-            const maintenanceReminders = document.getElementById('maintenanceReminders').value;
-            
-            // Get calculated loss values (from stored data if available)
-            const calculatorData = window.calculatorData || {};
-            
-            // Calculate annual losses for each category
-            const visibilityAnnual = Math.round((calculatorData.visibilityLoss || 0) * 12);
-            const responseAnnual = Math.round((calculatorData.responseLoss || 0) * 12);
-            const missedCallsAnnual = Math.round((calculatorData.totalMissedCallLoss || 0) * 12);
-            const retentionAnnual = Math.round((calculatorData.retentionLoss || 0) * 12);
-            
-            // Determine biggest loss category
-            const losses = [
-                { category: 'Missed Calls', amount: missedCallsAnnual },
-                { category: 'Slow Response', amount: responseAnnual },
-                { category: 'Poor Visibility', amount: visibilityAnnual },
-                { category: 'Lost Customers', amount: retentionAnnual }
-            ];
-            const biggestLoss = losses.sort((a, b) => b.amount - a.amount)[0];
-            
-            // Create URL with all parameters
-            const params = new URLSearchParams({
-                // Basic loss calculations
-                total_annual_loss: totalAnnualLoss,
-                monthly_loss: monthlyLoss,
-                weekly_loss: weeklyLoss,
-                daily_loss: dailyLoss,
-                hourly_loss: hourlyLoss,
-                
-                // Category losses
-                visibility_annual: visibilityAnnual,
-                response_annual: responseAnnual,
-                missed_calls_annual: missedCallsAnnual,
-                retention_annual: retentionAnnual,
-                
-                // Input metrics
-                total_calls: totalCalls,
-                missed_call_rate: missedCallRate,
-                response_time: responseTime,
-                followup_rate: followUpRate,
-                retention_rate: retentionRate,
-                customer_value: customerValue,
-                online_visibility: onlineVisibility,
-                after_hours: afterHours,
-                maintenance_reminders: maintenanceReminders,
-                
-                // Calculated metrics
-                biggest_loss_category: biggestLoss.category,
-                biggest_loss_amount: Math.round(biggestLoss.amount / 12), // Monthly amount
-                
-                // Recovery projections
-                recovery_30_days: Math.round(biggestLoss.amount / 12), // First month recovery
-                recovery_90_days: Math.round(totalAnnualLoss / 4), // First quarter recovery
-                
-                // Timestamp
-                calculated_date: new Date().toLocaleDateString()
-            });
-            
-            // Redirect to form WITH all the data
-            window.location.href = `https://xtrasmartai.com/revenue-report?${params}`;
-        }
-        
-        function shareResults() {
-            const loss = document.getElementById('totalAnnualLoss').textContent;
-            const text = `I just discovered I'm losing ${loss} per year in my HVAC business! Find out your revenue leaks with The Never Miss Calculator™ by XtraSmart AI`;
-            const url = 'https://calculator.xtrasmartai.com'; // Update with your actual URL
-            
-            // Always open LinkedIn directly - no popups
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
         }
         
         // Add event listeners for real-time calculation
