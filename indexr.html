@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storm Response Calculator™ - Find Your Revenue Leaks | Roofing Contractors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+        
+        .company-name {
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .ai-text {
+            color: #6366f1;
+            -webkit-text-fill-color: #6366f1;
+            font-size: 0.9em;
+            font-weight: 300;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(255, 193, 7, 0.15);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(255, 193, 7, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #ffffff;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .warning {
+            background: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .calculator-section {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #ffc107;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-icon {
+            font-size: 1.5em;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 193, 7, 0.5);
+            background: rgba(15, 23, 42, 0.8);
+            color: #ffffff;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #ffc107;
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        
+        select option {
+            background: #1e293b;
+            color: #ffffff;
+        }
+        
+        .metric-display {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border-left: 4px solid #f44336;
+        }
+        
+        .metric-label {
+            color: #ffffff;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f44336;
+            text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+        }
+        
+        .results-section {
+            background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .total-loss {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #ffffff;
+        }
+        
+        .recovery-roadmap {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .roadmap-title {
+            font-size: 1.8em;
+            color: #66bb6a;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(102, 187, 106, 0.5);
+        }
+        
+        .roadmap-item {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #66bb6a;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .roadmap-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .roadmap-number {
+            background: #66bb6a;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(102, 187, 106, 0.5);
+        }
+        
+        .benchmark-section {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .benchmark-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .benchmark-card {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .benchmark-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .benchmark-label {
+            color: #ffffff;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        
+        .benchmark-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .your-value {
+            color: #f44336;
+            text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+        }
+        
+        .top-performer {
+            color: #66bb6a;
+            text-shadow: 0 0 10px rgba(102, 187, 106, 0.5);
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-bottom: 40px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(102, 187, 106, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102, 187, 106, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .total-loss {
+                font-size: 2.5em;
+            }
+            
+            .calculator-section {
+                padding: 20px;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+                display: block;
+            }
+            
+            .company-name {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <svg class="logo" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- XtraSmart X Logo -->
+                <g transform="translate(200, 200)">
+                    <!-- Circuit pattern background -->
+                    <circle cx="0" cy="0" r="180" fill="none" stroke="url(#gradient1)" stroke-width="2" opacity="0.3"/>
+                    
+                    <!-- Main X shape -->
+                    <path d="M-60,-60 L-20,-20 L-60,60 L-40,80 L0,20 L40,80 L60,60 L20,-20 L60,-60 L40,-80 L0,-20 L-40,-80 Z" 
+                          fill="url(#gradient1)" stroke="#ffffff" stroke-width="2"/>
+                    
+                    <!-- Circuit nodes -->
+                    <circle cx="-60" cy="-60" r="8" fill="#6366f1" stroke="#ffffff" stroke-width="2"/>
+                    <circle cx="60" cy="-60" r="8" fill="#ec4899" stroke="#ffffff" stroke-width="2"/>
+                    <circle cx="-60" cy="60" r="8" fill="#8b5cf6" stroke="#ffffff" stroke-width="2"/>
+                    <circle cx="60" cy="60" r="8" fill="#6366f1" stroke="#ffffff" stroke-width="2"/>
+                    <circle cx="0" cy="0" r="10" fill="#ffffff" stroke="url(#gradient1)" stroke-width="3"/>
+                    
+                    <!-- Circuit lines -->
+                    <path d="M-60,-60 L-100,-100 M60,-60 L100,-100 M-60,60 L-100,100 M60,60 L100,100" 
+                          stroke="url(#gradient1)" stroke-width="2" fill="none" opacity="0.5"/>
+                </g>
+            </svg>
+            <div class="company-name">
+                XtraSmart <span class="ai-text">AI</span>
+            </div>
+        </div>
+        
+        <div class="header">
+            <h1>Storm Response Calculator™</h1>
+            <p class="subtitle">Calculate Revenue Lost From Slow Lead Response & Limited Capacity</p>
+            <span class="warning">⚡ First Responder Wins 78% of Roofing Jobs</span>
+        </div>
+        
+        <form id="calculatorForm">
+            <!-- Section 1: Lead Response Time Losses -->
+            <div class="calculator-section">
+                <h2 class="section-title">
+                    <span class="section-icon">⚡</span>
+                    Speed-to-Lead Response Losses
+                </h2>
+                <div class="input-group">
+                    <label>How many roofing leads do you get per month?</label>
+                    <input type="number" id="totalLeads" value="40" min="0" max="500">
+                </div>
+                <div class="input-group">
+                    <label>Average response time to new leads?</label>
+                    <select id="responseTime">
+                        <option value="5">Within 5 minutes</option>
+                        <option value="60">Within 1 hour</option>
+                        <option value="300">Within 5 hours</option>
+                        <option value="1440" selected>Within 24 hours</option>
+                        <option value="2880">48+ hours</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>What percentage of leads do you actually contact?</label>
+                    <input type="number" id="contactRate" value="50" min="0" max="100">
+                </div>
+                <div class="metric-display">
+                    <div class="metric-label">Monthly Revenue Lost to Slow Response</div>
+                    <div class="metric-value" id="responseLoss">$0</div>
+                </div>
+            </div>
+            
+            <!-- Section 2: Storm Season Capacity Losses -->
+            <div class="calculator-section">
+                <h2 class="section-title">
+                    <span class="section-icon">🌪️</span>
+                    Storm Season & Peak Demand Losses
+                </h2>
+                <div class="input-group">
+                    <label>Do you have storm response capacity?</label>
+                    <select id="stormCapacity">
+                        <option value="full">Full storm response team</option>
+                        <option value="limited" selected>Limited storm capacity</option>
+                        <option value="none">No dedicated storm team</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Average jobs from storm events per year?</label>
+                    <input type="number" id="stormJobs" value="20" min="0" max="200">
+                </div>
+                <div class="input-group">
+                    <label>What percentage of storm leads do you miss due to capacity?</label>
+                    <input type="number" id="stormMissRate" value="40" min="0" max="100">
+                </div>
+                <div class="metric-display">
+                    <div class="metric-label">Annual Revenue Lost to Limited Storm Capacity</div>
+                    <div class="metric-value" id="stormLoss">$0</div>
+                </div>
+            </div>
+            
+            <!-- Section 3: Lead Quality & Conversion Losses -->
+            <div class="calculator-section">
+                <h2 class="section-title">
+                    <span class="section-icon">📊</span>
+                    Lead Conversion & Close Rate Losses
+                </h2>
+                <div class="input-group">
+                    <label>Current lead-to-appointment conversion rate?</label>
+                    <select id="conversionRate">
+                        <option value="50">40-50% (Excellent)</option>
+                        <option value="30">20-30% (Good)</option>
+                        <option value="15" selected>10-20% (Average)</option>
+                        <option value="5">Below 10% (Poor)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Average roofing job value?</label>
+                    <input type="number" id="avgJobValue" value="12000" min="1000" max="50000">
+                </div>
+                <div class="input-group">
+                    <label>Do you have automated follow-up sequences?</label>
+                    <select id="followUpSystem">
+                        <option value="full">Full automation (text, email, phone)</option>
+                        <option value="partial">Some automation</option>
+                        <option value="manual" selected>Manual follow-up only</option>
+                        <option value="none">No systematic follow-up</option>
+                    </select>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-label">Monthly Revenue Lost to Poor Conversion</div>
+                    <div class="metric-value" id="conversionLoss">$0</div>
+                </div>
+            </div>
+            
+            <!-- Section 4: Digital Marketing & Lead Generation -->
+            <div class="calculator-section">
+                <h2 class="section-title">
+                    <span class="section-icon">💻</span>
+                    Online Presence & Lead Generation Losses
+                </h2>
+                <div class="input-group">
+                    <label>Primary lead sources?</label>
+                    <select id="leadSources">
+                        <option value="diverse">Multiple sources (SEO, PPC, referrals)</option>
+                        <option value="paid" selected>Mostly paid leads</option>
+                        <option value="referrals">Mostly referrals</option>
+                        <option value="none">Door knocking only</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Average cost per lead (if buying leads)?</label>
+                    <input type="number" id="leadCost" value="250" min="0" max="1000">
+                </div>
+                <div class="input-group">
+                    <label>Google reviews rating?</label>
+                    <select id="reviewRating">
+                        <option value="5">4.5+ stars (100+ reviews)</option>
+                        <option value="4">4.0-4.4 stars</option>
+                        <option value="3" selected>3.5-3.9 stars</option>
+                        <option value="2">Below 3.5 stars or few reviews</option>
+                    </select>
+                </div>
+                <div class="metric-display">
+                    <div class="metric-label">Monthly Revenue Lost to Weak Online Presence</div>
+                    <div class="metric-value" id="onlineLoss">$0</div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Results Section -->
+        <div class="results-section" id="results">
+            <h2>Your Total Annual Revenue Loss</h2>
+            <div class="total-loss" id="totalAnnualLoss">$0</div>
+            <p>That's roofing revenue you're leaving on the table</p>
+        </div>
+        
+        <!-- Recovery Roadmap -->
+        <div class="recovery-roadmap">
+            <h2 class="roadmap-title">Your Revenue Recovery Blueprint</h2>
+            <div id="roadmapItems"></div>
+        </div>
+        
+        <!-- Benchmark Section -->
+        <div class="benchmark-section">
+            <h2 class="section-title">
+                <span class="section-icon">📊</span>
+                You vs. Top Roofing Contractors
+            </h2>
+            <div class="benchmark-grid" id="benchmarks"></div>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <button class="cta-button" onclick="getStarted()">
+                Win Every Storm - Get Instant Response System™
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Constants for roofing industry
+        const AVG_ROOF_VALUE = 12000;
+        const STORM_JOB_VALUE = 15000;
+        const EMERGENCY_REPAIR_VALUE = 3000;
+        
+        // Calculate losses in real-time
+        function calculateLosses() {
+            // Get input values
+            const totalLeads = parseInt(document.getElementById('totalLeads').value) || 0;
+            const responseTime = parseInt(document.getElementById('responseTime').value);
+            const contactRate = parseInt(document.getElementById('contactRate').value) / 100;
+            const stormCapacity = document.getElementById('stormCapacity').value;
+            const stormJobs = parseInt(document.getElementById('stormJobs').value) || 0;
+            const stormMissRate = parseInt(document.getElementById('stormMissRate').value) / 100;
+            const conversionRate = parseInt(document.getElementById('conversionRate').value) / 100;
+            const avgJobValue = parseInt(document.getElementById('avgJobValue').value) || 12000;
+            const followUpSystem = document.getElementById('followUpSystem').value;
+            const leadSources = document.getElementById('leadSources').value;
+            const leadCost = parseInt(document.getElementById('leadCost').value) || 0;
+            const reviewRating = parseInt(document.getElementById('reviewRating').value);
+            
+            // 1. Response time losses (critical - 5 minute rule)
+            let responseLoss = 0;
+            if (responseTime > 5) {
+                // After 5 minutes, conversion drops dramatically
+                let lossMultiplier = 0;
+                if (responseTime <= 60) {
+                    lossMultiplier = 0.2; // 20% loss
+                } else if (responseTime <= 300) {
+                    lossMultiplier = 0.4; // 40% loss
+                } else if (responseTime <= 1440) {
+                    lossMultiplier = 0.6; // 60% loss
+                } else {
+                    lossMultiplier = 0.8; // 80% loss
+                }
+                
+                const lostLeads = totalLeads * lossMultiplier;
+                responseLoss = lostLeads * conversionRate * avgJobValue;
+            }
+            
+            // Add losses from not contacting all leads
+            const uncontactedLeads = totalLeads * (1 - contactRate);
+            responseLoss += uncontactedLeads * conversionRate * avgJobValue;
+            
+            // 2. Storm season capacity losses
+            let stormLoss = 0;
+            const missedStormJobs = stormJobs * stormMissRate;
+            
+            if (stormCapacity === 'none') {
+                stormLoss = missedStormJobs * STORM_JOB_VALUE;
+            } else if (stormCapacity === 'limited') {
+                stormLoss = missedStormJobs * STORM_JOB_VALUE * 0.6;
+            } else {
+                stormLoss = missedStormJobs * STORM_JOB_VALUE * 0.2;
+            }
+            
+            // 3. Conversion rate losses
+            let conversionLoss = 0;
+            const industryBestConversion = 0.45; // Top performers convert 45%
+            const conversionGap = Math.max(industryBestConversion - conversionRate, 0);
+            const lostConversions = totalLeads * contactRate * conversionGap;
+            conversionLoss = lostConversions * avgJobValue;
+            
+            // Follow-up system impact
+            if (followUpSystem === 'none') {
+                conversionLoss *= 1.5;
+            } else if (followUpSystem === 'manual') {
+                conversionLoss *= 1.3;
+            } else if (followUpSystem === 'partial') {
+                conversionLoss *= 1.1;
+            }
+            
+            // 4. Online presence and lead generation losses
+            let onlineLoss = 0;
+            
+            // Lead source diversity impact
+            if (leadSources === 'paid') {
+                // Over-reliance on expensive paid leads
+                const excessLeadCost = leadCost - 100; // Should aim for $100 or less
+                if (excessLeadCost > 0) {
+                    onlineLoss += totalLeads * excessLeadCost;
+                }
+            } else if (leadSources === 'none') {
+                // Missing out on digital leads entirely
+                const digitalLeadOpportunity = totalLeads * 0.5; // Could double with digital
+                onlineLoss += digitalLeadOpportunity * conversionRate * avgJobValue;
+            }
+            
+            // Review rating impact on conversion
+            const reviewImpact = (5 - reviewRating) * 0.1; // Each star difference = 10% conversion loss
+            onlineLoss += totalLeads * contactRate * reviewImpact * conversionRate * avgJobValue;
+            
+            // Update displays
+            document.getElementById('responseLoss').textContent = '$' + Math.round(responseLoss).toLocaleString();
+            document.getElementById('stormLoss').textContent = '$' + Math.round(stormLoss).toLocaleString();
+            document.getElementById('conversionLoss').textContent = '$' + Math.round(conversionLoss).toLocaleString();
+            document.getElementById('onlineLoss').textContent = '$' + Math.round(onlineLoss).toLocaleString();
+            
+            // Calculate total annual loss
+            const monthlyLoss = responseLoss + conversionLoss + onlineLoss;
+            const annualLoss = monthlyLoss * 12 + stormLoss; // Storm loss is already annual
+            document.getElementById('totalAnnualLoss').textContent = '$' + Math.round(annualLoss).toLocaleString();
+            
+            // Generate recovery roadmap
+            generateRoadmap(responseLoss * 12, stormLoss, conversionLoss * 12, onlineLoss * 12);
+            
+            // Update benchmarks
+            updateBenchmarks(responseTime, contactRate, conversionRate, reviewRating);
+        }
+        
+        function generateRoadmap(response, storm, conversion, online) {
+            const roadmapItems = [];
+            const losses = [
+                { type: 'slow response', loss: response, solution: '5-Minute Response Guarantee System', impact: 'Be first to every lead, win 78% more jobs' },
+                { type: 'storm capacity', loss: storm, solution: 'Storm Response Team Expansion', impact: 'Capture high-value storm damage projects' },
+                { type: 'poor conversion', loss: conversion, solution: 'Automated Follow-up & Nurture System', impact: 'Convert 45% of leads like top performers' },
+                { type: 'weak online presence', loss: online, solution: 'SEO & Review Generation Strategy', impact: 'Generate exclusive leads at lower cost' }
+            ];
+            
+            // Sort by biggest loss first
+            losses.sort((a, b) => b.loss - a.loss);
+            
+            const roadmapHtml = losses.slice(0, 3).map((item, index) => `
+                <div class="roadmap-item">
+                    <div class="roadmap-number">${index + 1}</div>
+                    <div>
+                        <strong>${item.solution}</strong><br>
+                        <span style="color: #ffffff; opacity: 0.8;">${item.impact}</span><br>
+                        <span style="color: #66bb6a; font-weight: bold;">Potential Recovery: $${Math.round(item.loss).toLocaleString()}/year</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('roadmapItems').innerHTML = roadmapHtml;
+        }
+        
+        function updateBenchmarks(responseTime, contactRate, conversionRate, reviewRating) {
+            const benchmarks = [
+                { label: 'Response Time', yours: responseTime > 60 ? Math.round(responseTime / 60) + ' hours' : responseTime + ' min', top: '< 5 min' },
+                { label: 'Contact Rate', yours: Math.round(contactRate * 100) + '%', top: '100%' },
+                { label: 'Conversion Rate', yours: Math.round(conversionRate * 100) + '%', top: '45%' },
+                { label: 'Review Rating', yours: reviewRating + '.0 stars', top: '4.5+ stars' }
+            ];
+            
+            const benchmarkHtml = benchmarks.map(b => `
+                <div class="benchmark-card">
+                    <div class="benchmark-label">${b.label}</div>
+                    <div class="benchmark-value your-value">You: ${b.yours}</div>
+                    <div class="benchmark-value top-performer">Top 10%: ${b.top}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('benchmarks').innerHTML = benchmarkHtml;
+        }
+        
+        function getStarted() {
+            // Updated with the new calendar booking link
+            window.location.href = 'https://api.leadconnectorhq.com/widget/bookings/hvac-discussion';
+        }
+        
+        // Add event listeners for real-time calculation
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('input', calculateLosses);
+            element.addEventListener('change', calculateLosses);
+        });
+        
+        // Calculate on load
+        calculateLosses();
+    </script>
+</body>
+</html>
